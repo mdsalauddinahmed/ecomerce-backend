@@ -1,0 +1,202 @@
+{
+  "info": {
+    "name": "E-commerce API Collection",
+    "description": "Complete API collection for testing the E-commerce Product Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone 13\",\n  \"description\": \"A sleek and powerful smartphone with cutting-edge features.\",\n  \"price\": 999,\n  \"category\": \"Electronics\",\n  \"tags\": [\"smartphone\", \"Apple\", \"iOS\"],\n  \"variants\": [\n    {\n      \"type\": \"Color\",\n      \"value\": \"Midnight Blue\"\n    },\n    {\n      \"type\": \"Storage Capacity\",\n      \"value\": \"256GB\"\n    }\n  ],\n  \"inventory\": {\n    \"quantity\": 50,\n    \"inStock\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/products",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/products",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "products"]
+            }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/products/:productId",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "products", ":productId"],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "YOUR_PRODUCT_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"iPhone 13\",\n  \"description\": \"A sleek and powerful smartphone with cutting-edge features.\",\n  \"price\": 999,\n  \"category\": \"Electronics\",\n  \"tags\": [\"smartphone\", \"Apple\", \"iOS\"],\n  \"variants\": [\n    {\n      \"type\": \"Color\",\n      \"value\": \"Midnight Blue\"\n    },\n    {\n      \"type\": \"Storage Capacity\",\n      \"value\": \"256GB\"\n    }\n  ],\n  \"inventory\": {\n    \"quantity\": 49,\n    \"inStock\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/products/:productId",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "products", ":productId"],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "YOUR_PRODUCT_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/products/:productId",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "products", ":productId"],
+              "variable": [
+                {
+                  "key": "productId",
+                  "value": "YOUR_PRODUCT_ID_HERE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/products?searchTerm=iphone",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "products"],
+              "query": [
+                {
+                  "key": "searchTerm",
+                  "value": "iphone"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"level2@programming-hero.com\",\n  \"productId\": \"YOUR_PRODUCT_ID_HERE\",\n  \"price\": 999,\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "orders"]
+            }
+          }
+        },
+        {
+          "name": "Get Orders by Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/orders?email=level2@programming-hero.com",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "orders"],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "level2@programming-hero.com"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

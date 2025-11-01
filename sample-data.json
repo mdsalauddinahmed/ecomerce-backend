@@ -1,0 +1,65 @@
+[
+  {
+    "name": "iPhone 13 Pro",
+    "description": "The latest flagship iPhone model with advanced camera features.",
+    "price": 999,
+    "category": "Smartphones",
+    "tags": ["iPhone", "Apple", "Mobile"],
+    "variants": [
+      {
+        "type": "Color",
+        "value": "Graphite"
+      },
+      {
+        "type": "Storage",
+        "value": "256GB"
+      }
+    ],
+    "inventory": {
+      "quantity": 50,
+      "inStock": true
+    }
+  },
+  {
+    "name": "Samsung Galaxy S21",
+    "description": "High-performance Android smartphone with advanced camera capabilities.",
+    "price": 799,
+    "category": "Electronics",
+    "tags": ["smartphone", "Samsung", "Android"],
+    "variants": [
+      {
+        "type": "Color",
+        "value": "Phantom Black"
+      },
+      {
+        "type": "Storage Capacity",
+        "value": "128GB"
+      }
+    ],
+    "inventory": {
+      "quantity": 30,
+      "inStock": true
+    }
+  },
+  {
+    "name": "MacBook Pro 16",
+    "description": "Powerful laptop for professionals with M2 chip.",
+    "price": 2499,
+    "category": "Computers",
+    "tags": ["laptop", "Apple", "MacBook"],
+    "variants": [
+      {
+        "type": "Color",
+        "value": "Space Gray"
+      },
+      {
+        "type": "RAM",
+        "value": "32GB"
+      }
+    ],
+    "inventory": {
+      "quantity": 15,
+      "inStock": true
+    }
+  }
+]
