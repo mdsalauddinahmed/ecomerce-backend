@@ -21,7 +21,7 @@ export interface IProduct extends Document {
   tags: string[];
   variants: IVariant[];
   inventory: IInventory;
-  categoryData?: any; // Category-specific fields (size, color, weight, etc.)
+  categoryData?: Record<string, unknown>; // Category-specific fields (size, color, weight, etc.)
   image?: string; // Cloudinary image URL
 }
 

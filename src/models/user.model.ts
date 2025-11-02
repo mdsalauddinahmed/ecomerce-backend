@@ -78,8 +78,10 @@ userSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
-  } catch (error: any) {
-    next(error);
+  } catch (error: unknown) {
+    // Ensure we pass an Error to next(). If unknown, coerce to Error with a string message.
+    const err = error instanceof Error ? error : new Error(String(error));
+    next(err);
   }
 });
 

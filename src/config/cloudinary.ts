@@ -30,7 +30,7 @@ console.log('Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
 const storage = multer.memoryStorage();
 
 // File filter to accept only images
-const fileFilter = (req: Request, file: Express.Multer.File, cb: any) => {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: (error: Error | null, accept?: boolean) => void) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {

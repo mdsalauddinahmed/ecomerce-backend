@@ -34,11 +34,15 @@ app.use((req: Request, res: Response) => {
 });
 
 // Global error handler
-app.use((err: any, req: Request, res: Response, next: any) => {
-  console.error(err.stack);
+app.use((err: unknown, req: Request, res: Response, _next: unknown) => {
+  // Mark _next as used to satisfy lint
+  void _next;
+  // Better typing for error handling
+  console.error((err as Error)?.stack || err);
+  const message = (err as Error)?.message || 'Internal server error';
   res.status(500).json({
     success: false,
-    message: err.message || 'Internal server error',
+    message,
   });
 });
 

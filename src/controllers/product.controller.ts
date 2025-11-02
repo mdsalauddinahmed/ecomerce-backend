@@ -1,4 +1,7 @@
 import { Request, Response } from 'express';
+
+// Helper to safely extract error messages
+const getErrorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 import {
   createProductService,
   getAllProductsService,
@@ -7,7 +10,7 @@ import {
   deleteProductService,
   searchProductsService,
 } from '../services/product.service';
-import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary';
+import { uploadToCloudinary } from '../config/cloudinary';
 
 // Create a new product
 export const createProduct = async (req: Request, res: Response) => {
@@ -26,7 +29,19 @@ export const createProduct = async (req: Request, res: Response) => {
     }
 
     // Parse FormData fields
-    const productData: any = {
+    type ProductInput = {
+      name?: string;
+      description?: string;
+      price?: number;
+      category?: string;
+      tags?: string[];
+      variants?: unknown[];
+      inventory?: Record<string, unknown>;
+      image?: string;
+      categoryData?: Record<string, unknown>;
+    };
+
+    const productData: ProductInput = {
       name: req.body.name,
       description: req.body.description,
       price: parseFloat(req.body.price),
@@ -44,7 +59,7 @@ export const createProduct = async (req: Request, res: Response) => {
     if (req.body.categoryData) {
       try {
         productData.categoryData = JSON.parse(req.body.categoryData);
-      } catch (e) {
+      } catch (e: unknown) {
         productData.categoryData = req.body.categoryData;
       }
     }
@@ -65,11 +80,11 @@ export const createProduct = async (req: Request, res: Response) => {
       message: 'Product created successfully!',
       data: product,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Product creation error:', error);
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to create product',
+      message: getErrorMessage(error) || 'Failed to create product',
     });
   }
 };
@@ -97,10 +112,10 @@ export const getProducts = async (req: Request, res: Response) => {
       message,
       data: products,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch products',
+      message: getErrorMessage(error) || 'Failed to fetch products',
     });
   }
 };
@@ -124,10 +139,10 @@ export const getProductById = async (req: Request, res: Response) => {
       message: 'Product fetched successfully!',
       data: product,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch product',
+      message: getErrorMessage(error) || 'Failed to fetch product',
     });
   }
 };
@@ -152,10 +167,10 @@ export const updateProduct = async (req: Request, res: Response) => {
       message: 'Product updated successfully!',
       data: product,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to update product',
+      message: getErrorMessage(error) || 'Failed to update product',
     });
   }
 };
@@ -179,10 +194,10 @@ export const deleteProduct = async (req: Request, res: Response) => {
       message: 'Product deleted successfully!',
       data: null,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to delete product',
+      message: getErrorMessage(error) || 'Failed to delete product',
     });
   }
 };

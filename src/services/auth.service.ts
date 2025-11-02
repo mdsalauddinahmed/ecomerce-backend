@@ -1,18 +1,15 @@
 import jwt from 'jsonwebtoken';
-import { User, IUser } from '../models/user.model';
+import { User } from '../models/user.model';
 import { config } from '../config/config';
 import { TSignup, TLogin, TUpdateProfile, TChangePassword } from '../validators/validation';
 
 // Generate JWT Token
 const generateToken = (userId: string, email: string, role: string): string => {
   const options: jwt.SignOptions = {
-    expiresIn: config.jwtExpire as any,
+    // cast to the SignOptions['expiresIn'] type to satisfy TS typings
+    expiresIn: config.jwtExpire as jwt.SignOptions['expiresIn'],
   };
-  return jwt.sign(
-    { id: userId, email, role },
-    config.jwtSecret,
-    options
-  );
+  return jwt.sign({ id: userId, email, role }, config.jwtSecret, options);
 };
 
 // Register new user
@@ -27,11 +24,11 @@ export const registerUserService = async (userData: TSignup) => {
   const user = await User.create(userData);
 
   // Generate token
-  const token = generateToken((user._id as any).toString(), user.email, user.role);
+  const token = generateToken(String(user._id), user.email, user.role);
 
-  // Remove password from response
-  const userObject: any = user.toObject();
-  delete userObject.password;
+  // Remove password from response - convert to plain object safely
+  const userObject = JSON.parse(JSON.stringify(user));
+  delete (userObject as Record<string, unknown>).password;
 
   return { user: userObject, token };
 };
@@ -53,11 +50,11 @@ export const loginUserService = async (credentials: TLogin) => {
   }
 
   // Generate token
-  const token = generateToken((user._id as any).toString(), user.email, user.role);
+  const token = generateToken(String(user._id), user.email, user.role);
 
-  // Remove password from response
-  const userObject: any = user.toObject();
-  delete userObject.password;
+  // Remove password from response - convert to plain object safely
+  const userObject = JSON.parse(JSON.stringify(user));
+  delete (userObject as Record<string, unknown>).password;
 
   return { user: userObject, token };
 };

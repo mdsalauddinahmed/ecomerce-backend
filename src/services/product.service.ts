@@ -1,7 +1,7 @@
 import { Product } from '../models/product.model';
 
 // Create a new product
-export const createProductService = async (productData: any) => {
+export const createProductService = async (productData: Record<string, unknown>) => {
   const product = await Product.create(productData);
   return product;
 };
@@ -21,7 +21,7 @@ export const getProductByIdService = async (productId: string) => {
 // Update a product by ID
 export const updateProductService = async (
   productId: string,
-  productData: any
+  productData: Record<string, unknown>
 ) => {
   const product = await Product.findByIdAndUpdate(productId, productData, {
     new: true,

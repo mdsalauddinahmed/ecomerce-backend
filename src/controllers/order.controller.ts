@@ -1,4 +1,10 @@
 import { Request, Response } from 'express';
+
+// Helper to safely extract error messages
+const getErrorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
+
+// Local user shape expected on req.user (from auth middleware)
+type LocalUser = { userId?: string; email?: string; role?: string; _id?: string };
 import {
   createOrderService,
   getAllOrdersService,
@@ -11,7 +17,8 @@ import {
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId; // From auth middleware
+    const user = (req as Request & { user?: LocalUser }).user;
+    const userId = user?.userId || user?._id;
     const { items, shippingAddress } = req.body;
 
     if (!items || items.length === 0) {
@@ -24,7 +31,7 @@ export const createOrder = async (req: Request, res: Response) => {
     // Create order with user data
     const order = await createOrderService({
       userId,
-      email: (req as any).user.email,
+      email: user?.email,
       items,
       shippingAddress,
     });
@@ -34,10 +41,10 @@ export const createOrder = async (req: Request, res: Response) => {
       message: 'Order placed successfully!',
       data: order,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to create order',
+      message: getErrorMessage(error) || 'Failed to create order',
     });
   }
 };
@@ -45,18 +52,19 @@ export const createOrder = async (req: Request, res: Response) => {
 // Get user's orders
 export const getUserOrders = async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
-    const orders = await getUserOrdersService(userId);
+    const user = (req as Request & { user?: LocalUser }).user;
+    const userId = user?.userId || user?._id;
+    const orders = await getUserOrdersService(userId as string);
 
     res.status(200).json({
       success: true,
       message: 'Orders fetched successfully!',
       data: orders,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch orders',
+      message: getErrorMessage(error) || 'Failed to fetch orders',
     });
   }
 };
@@ -71,10 +79,10 @@ export const getAllOrders = async (req: Request, res: Response) => {
       message: 'All orders fetched successfully!',
       data: orders,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch orders',
+      message: getErrorMessage(error) || 'Failed to fetch orders',
     });
   }
 };
@@ -97,10 +105,10 @@ export const getOrderById = async (req: Request, res: Response) => {
       message: 'Order fetched successfully!',
       data: order,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch order',
+      message: getErrorMessage(error) || 'Failed to fetch order',
     });
   }
 };
@@ -125,10 +133,10 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
       message: 'Order status updated successfully!',
       data: order,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to update order status',
+      message: getErrorMessage(error) || 'Failed to update order status',
     });
   }
 };
@@ -137,19 +145,24 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
 export const cancelOrder = async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
-    const userId = (req as any).user.userId;
+    const user = (req as Request & { user?: LocalUser }).user;
+    const userId = user?.userId || user?._id;
 
-    const order = await cancelOrderService(orderId, userId);
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+  const order = await cancelOrderService(orderId, userId as string);
 
     res.status(200).json({
       success: true,
       message: 'Order cancelled successfully!',
       data: order,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to cancel order',
+      message: getErrorMessage(error) || 'Failed to cancel order',
     });
   }
 };

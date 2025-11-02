@@ -1,14 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
-import { User } from '../models/user.model';
+import { User, IUser } from '../models/user.model';
 
-// Extend Express Request to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
+// Extend Express Request to include user (module augmentation)
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: IUser | null;
   }
 }
 
@@ -67,10 +65,11 @@ export const protect = async (
         message: 'Invalid token. Please login again.',
       });
     }
-  } catch (error: any) {
+    } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Authentication error',
+      message: message || 'Authentication error',
     });
   }
 };

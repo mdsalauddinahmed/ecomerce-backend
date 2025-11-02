@@ -1,8 +1,16 @@
 import { Order, IOrder } from '../models/order.model';
 import { Product } from '../models/product.model';
 
+// Input type for creating an order
+type CreateOrderInput = {
+  userId?: string | import('mongoose').Types.ObjectId;
+  email?: string;
+  items: Array<{ productId: string; quantity: number }>;
+  shippingAddress?: Record<string, unknown>;
+};
+
 // Create a new order
-export const createOrderService = async (orderData: any): Promise<IOrder> => {
+export const createOrderService = async (orderData: CreateOrderInput): Promise<IOrder> => {
   // Validate and calculate total
   let totalAmount = 0;
   const items = [];

@@ -1,4 +1,9 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import { config } from '../config/config';
+
+// Helper to safely extract error messages from unknown errors
+const getErrorMessage = (error: unknown) => (error instanceof Error ? error.message : String(error));
 import {
   registerUserService,
   loginUserService,
@@ -32,10 +37,10 @@ export const signup = async (req: Request, res: Response) => {
         token,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to register user',
+      message: getErrorMessage(error) || 'Failed to register user',
     });
   }
 };
@@ -57,10 +62,10 @@ export const login = async (req: Request, res: Response) => {
         token,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(401).json({
       success: false,
-      message: error.message || 'Login failed',
+      message: getErrorMessage(error) || 'Login failed',
     });
   }
 };
@@ -68,17 +73,23 @@ export const login = async (req: Request, res: Response) => {
 // Get current user profile
 export const getProfile = async (req: Request, res: Response) => {
   try {
-    const user = await getUserProfileService(req.user._id);
+    const userFromReq = (req as Request & { user?: { userId?: string; _id?: string } }).user;
+    const userId = userFromReq?.userId || userFromReq?._id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const user = await getUserProfileService(userId as string);
 
     res.status(200).json({
       success: true,
       message: 'Profile fetched successfully!',
       data: user,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch profile',
+      message: getErrorMessage(error) || 'Failed to fetch profile',
     });
   }
 };
@@ -90,17 +101,23 @@ export const updateProfile = async (req: Request, res: Response) => {
     const validatedData = updateProfileValidationSchema.parse(req.body);
 
     // Update profile
-    const user = await updateUserProfileService(req.user._id, validatedData);
+    const userFromReq = (req as Request & { user?: { userId?: string; _id?: string } }).user;
+    const userId = userFromReq?.userId || userFromReq?._id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const user = await updateUserProfileService(userId as string, validatedData);
 
     res.status(200).json({
       success: true,
       message: 'Profile updated successfully!',
       data: user,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to update profile',
+      message: getErrorMessage(error) || 'Failed to update profile',
     });
   }
 };
@@ -112,16 +129,22 @@ export const changePassword = async (req: Request, res: Response) => {
     const validatedData = changePasswordValidationSchema.parse(req.body);
 
     // Change password
-    const result = await changePasswordService(req.user._id, validatedData);
+    const userFromReq = (req as Request & { user?: { userId?: string; _id?: string } }).user;
+    const userId = userFromReq?.userId || userFromReq?._id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const result = await changePasswordService(userId as string, validatedData);
 
     res.status(200).json({
       success: true,
       message: result.message,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to change password',
+      message: getErrorMessage(error) || 'Failed to change password',
     });
   }
 };
@@ -144,10 +167,10 @@ export const getAllUsers = async (req: Request, res: Response) => {
       message: 'Users fetched successfully!',
       data: users,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to fetch users',
+      message: getErrorMessage(error) || 'Failed to fetch users',
     });
   }
 };
@@ -164,10 +187,10 @@ export const deleteUser = async (req: Request, res: Response) => {
       message: 'User deleted successfully!',
       data: null,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(400).json({
       success: false,
-      message: error.message || 'Failed to delete user',
+      message: getErrorMessage(error) || 'Failed to delete user',
     });
   }
 };
@@ -198,18 +221,15 @@ export const createAdmin = async (req: Request, res: Response) => {
     });
 
     // Generate token
-    const jwt = await import('jsonwebtoken');
-    const { config } = await import('../config/config');
-    
-    const token = jwt.default.sign(
+    const token = jwt.sign(
       { id: adminUser._id, email: adminUser.email, role: adminUser.role },
       config.jwtSecret,
-      { expiresIn: config.jwtExpire as any }
+      { expiresIn: config.jwtExpire as jwt.SignOptions['expiresIn'] }
     );
 
-    // Remove password from response
-    const userObject: any = adminUser.toObject();
-    delete userObject.password;
+    // Remove password from response - use JSON trick to get a plain object
+    const userObject = JSON.parse(JSON.stringify(adminUser));
+    delete (userObject as Record<string, unknown>).password;
 
     res.status(201).json({
       success: true,
@@ -219,10 +239,10 @@ export const createAdmin = async (req: Request, res: Response) => {
         token,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to create admin',
+      message: getErrorMessage(error) || 'Failed to create admin',
     });
   }
 };
